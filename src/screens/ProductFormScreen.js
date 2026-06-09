@@ -49,7 +49,12 @@ export default function ProductFormScreen({ navigation, route }) {
       setLoading(true);
 
       if (isEditing) {
-        const updated = await updateProduct(product.id, payload);
+        let updated = {};
+
+        if (product.id <= 194) {
+          updated = await updateProduct(product.id, payload);
+        }
+
         const merged = { ...product, ...payload, ...updated };
 
         updateLocalProduct(merged);
