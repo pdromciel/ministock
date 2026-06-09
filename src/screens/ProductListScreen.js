@@ -4,6 +4,7 @@ import ProductCard from '../components/ProductCard';
 import EmptyState from '../components/EmptyState';
 import { listCategories, listProducts, listProductsByCategory, searchProducts } from '../services/products';
 import { useAuth } from '../contexts/AuthContext';
+import { useProductsStore } from '../contexts/ProductContext';
 
 const LIMIT = 10;
 
@@ -19,6 +20,7 @@ export default function ProductListScreen({ navigation, route }) {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const { signOut } = useAuth();
+  const { version, applyLocalChanges } = useProductsStore();
 
   const canLoadMore = products.length < total;
 
@@ -55,7 +57,8 @@ export default function ProductListScreen({ navigation, route }) {
         data = await listProducts({ limit: LIMIT, skip: nextSkip });
       }
 
-      setProducts((current) => reset ? data.products : [...current, ...data.products]);
+      const productsWithLocalChanges = applyLocalChanges(data.products, { search, category });
+      setProducts((current) => reset ? productsWithLocalChanges : applyLocalChanges([...current, ...data.products], { search, category }));
       setTotal(data.total || 0);
       setSkip(nextSkip + LIMIT);
     } catch (error) {
@@ -66,7 +69,7 @@ export default function ProductListScreen({ navigation, route }) {
       setLoadingMore(false);
       setRefreshing(false);
     }
-  }, [category, search]);
+  }, [category, search, applyLocalChanges]);
 
   useEffect(() => {
     const timer = setTimeout(() => fetchProducts({ reset: true, nextSkip: 0 }), 350);
@@ -74,19 +77,8 @@ export default function ProductListScreen({ navigation, route }) {
   }, [fetchProducts]);
 
   useEffect(() => {
-    if (route.params?.createdProduct) {
-      setProducts((old) => [route.params.createdProduct, ...old]);
-      navigation.setParams({ createdProduct: undefined });
-    }
-    if (route.params?.updatedProduct) {
-      setProducts((old) => old.map((p) => p.id === route.params.updatedProduct.id ? { ...p, ...route.params.updatedProduct } : p));
-      navigation.setParams({ updatedProduct: undefined });
-    }
-    if (route.params?.deletedProductId) {
-      setProducts((old) => old.filter((p) => p.id !== route.params.deletedProductId));
-      navigation.setParams({ deletedProductId: undefined });
-    }
-  }, [route.params, navigation]);
+    setProducts((current) => applyLocalChanges(current, { search, category }));
+  }, [version, applyLocalChanges, search, category]);
 
   const selectedLabel = useMemo(() => category ? category.replaceAll('-', ' ') : 'Todas', [category]);
 

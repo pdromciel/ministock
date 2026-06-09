@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 import { createProduct, updateProduct } from '../services/products';
+import { useProductsStore } from '../contexts/ProductContext';
 
 export default function ProductFormScreen({ navigation, route }) {
   const product = route.params?.product;
@@ -11,6 +12,7 @@ export default function ProductFormScreen({ navigation, route }) {
   const [category, setCategory] = useState(product?.category || '');
   const [stock, setStock] = useState(product?.stock !== undefined ? String(product.stock) : '');
   const [loading, setLoading] = useState(false);
+  const { addLocalProduct, updateLocalProduct } = useProductsStore();
 
   function validate() {
     if (!title.trim() || !description.trim() || !price.trim() || !category.trim() || !stock.trim()) {
@@ -44,12 +46,15 @@ export default function ProductFormScreen({ navigation, route }) {
       if (isEditing) {
         const updated = await updateProduct(product.id, payload);
         const merged = { ...product, ...payload, ...updated };
+        updateLocalProduct(merged);
+        Alert.alert('Sucesso', 'Produto atualizado na listagem.');
         navigation.navigate('ProductDetail', { product: merged, updatedProduct: merged });
-        navigation.navigate('ProductList', { updatedProduct: merged });
       } else {
         const created = await createProduct(payload);
         const newProduct = { ...payload, ...created, id: created.id || Date.now() };
-        navigation.navigate('ProductList', { createdProduct: newProduct });
+        addLocalProduct(newProduct);
+        Alert.alert('Sucesso', 'Produto cadastrado na listagem.');
+        navigation.navigate('ProductList');
       }
     } catch (error) {
       Alert.alert('Erro ao salvar', error.message);

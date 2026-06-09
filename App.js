@@ -1,10 +1,14 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
+
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { ProductProvider } from './src/contexts/ProductContext';
+
 import AppNavigator from './src/navigation/AppNavigator';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import Loading from './src/components/Loading';
+
 import { setUnauthorizedHandler } from './src/services/api';
 
 function Routes() {
@@ -24,10 +28,12 @@ function Routes() {
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <Routes />
-      </NavigationContainer>
+      <ProductProvider>
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <Routes />
+        </NavigationContainer>
+      </ProductProvider>
     </AuthProvider>
   );
 }

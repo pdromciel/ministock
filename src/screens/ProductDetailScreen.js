@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { deleteProduct, getProductById } from '../services/products';
+import { useProductsStore } from '../contexts/ProductContext';
 
 export default function ProductDetailScreen({ navigation, route }) {
   const initialProduct = route.params?.product;
@@ -8,6 +9,7 @@ export default function ProductDetailScreen({ navigation, route }) {
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
+  const { deleteLocalProduct } = useProductsStore();
 
   useEffect(() => {
     async function loadProduct() {
@@ -43,7 +45,9 @@ export default function ProductDetailScreen({ navigation, route }) {
     try {
       setDeleting(true);
       await deleteProduct(product.id);
-      navigation.navigate('ProductList', { deletedProductId: product.id });
+      deleteLocalProduct(product.id);
+      Alert.alert('Sucesso', 'Produto removido da listagem.');
+      navigation.navigate('ProductList');
     } catch (error) {
       Alert.alert('Erro ao excluir', error.message);
     } finally {
