@@ -67,22 +67,11 @@ A camada `src/services` centraliza todas as chamadas HTTP. As telas não usam `a
 
 As rotas de cadastro, edição e exclusão são simuladas pela API. Por isso, o app atualiza o estado local da listagem após cada operação concluída com sucesso.
 
-## Sugestão de histórico de commits
-
-```bash
-git add package.json app.json .gitignore
-git commit -m "chore: configure Expo project"
-
-git add src/services src/contexts src/navigation App.js
-git commit -m "feat: add API services and authentication flow"
-
-git add src/components src/screens/LoginScreen.js src/screens/ProductListScreen.js
-git commit -m "feat: add login and product listing screens"
-
-git add src/screens/ProductDetailScreen.js src/screens/ProductFormScreen.js README.md
-git commit -m "feat: add product CRUD screens"
-```
 
 ## Capturas de tela
 
-Adicione aqui as capturas após rodar o app no celular ou emulador.
+
+![alt text](IMG_2132.png)
+![alt text](IMG_2130.png)
+![alt text](IMG_2129.png)
+![alt text](IMG_2131.png)
