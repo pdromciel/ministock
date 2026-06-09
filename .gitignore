@@ -1,0 +1,7 @@
+﻿node_modules/
+.expo/
+dist/
+web-build/
+.env
+npm-debug.log*
+package-lock.json
