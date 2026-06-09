@@ -19,19 +19,23 @@ export default function ProductFormScreen({ navigation, route }) {
       Alert.alert('Atenção', 'Preencha todos os campos.');
       return false;
     }
+
     if (Number.isNaN(Number(price)) || Number(price) <= 0) {
       Alert.alert('Atenção', 'Informe um preço válido.');
       return false;
     }
+
     if (!Number.isInteger(Number(stock)) || Number(stock) < 0) {
       Alert.alert('Atenção', 'Informe um estoque válido.');
       return false;
     }
+
     return true;
   }
 
   async function handleSubmit() {
     if (!validate()) return;
+
     const payload = {
       title: title.trim(),
       description: description.trim(),
@@ -43,18 +47,31 @@ export default function ProductFormScreen({ navigation, route }) {
 
     try {
       setLoading(true);
+
       if (isEditing) {
         const updated = await updateProduct(product.id, payload);
         const merged = { ...product, ...payload, ...updated };
+
         updateLocalProduct(merged);
-        Alert.alert('Sucesso', 'Produto atualizado na listagem.');
-        navigation.navigate('ProductDetail', { product: merged, updatedProduct: merged });
+
+        Alert.alert('Sucesso', 'Produto atualizado na listagem.', [
+          {
+            text: 'OK',
+            onPress: () => navigation.popToTop(),
+          },
+        ]);
       } else {
         const created = await createProduct(payload);
         const newProduct = { ...payload, ...created, id: created.id || Date.now() };
+
         addLocalProduct(newProduct);
-        Alert.alert('Sucesso', 'Produto cadastrado na listagem.');
-        navigation.navigate('ProductList');
+
+        Alert.alert('Sucesso', 'Produto cadastrado na listagem.', [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('ProductList'),
+          },
+        ]);
       }
     } catch (error) {
       Alert.alert('Erro ao salvar', error.message);
@@ -68,19 +85,36 @@ export default function ProductFormScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.label}>Título</Text>
         <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Ex: Smartphone" />
+
         <Text style={styles.label}>Descrição</Text>
         <TextInput style={[styles.input, styles.textArea]} value={description} onChangeText={setDescription} placeholder="Descrição do produto" multiline />
+
         <Text style={styles.label}>Preço</Text>
         <TextInput style={styles.input} value={price} onChangeText={setPrice} placeholder="99.90" keyboardType="decimal-pad" />
+
         <Text style={styles.label}>Categoria</Text>
         <TextInput style={styles.input} value={category} onChangeText={setCategory} placeholder="beauty, groceries..." autoCapitalize="none" />
+
         <Text style={styles.label}>Estoque</Text>
         <TextInput style={styles.input} value={stock} onChangeText={setStock} placeholder="10" keyboardType="number-pad" />
+
         <Pressable style={[styles.button, loading && styles.disabled]} onPress={handleSubmit} disabled={loading}>
-          <Text style={styles.buttonText}>{loading ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Cadastrar produto'}</Text>
+          <Text style={styles.buttonText}>
+            {loading ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Cadastrar produto'}
+          </Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: '#f1f5f9' }, content: { padding: 18 }, label: { color: '#0f172a', fontWeight: '800', marginBottom: 6, marginTop: 10 }, input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, padding: 14, fontSize: 16 }, textArea: { minHeight: 110, textAlignVertical: 'top' }, button: { backgroundColor: '#1e40af', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24 }, disabled: { opacity: 0.75 }, buttonText: { color: '#fff', fontWeight: '900', fontSize: 16 } });
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
+  content: { padding: 18 },
+  label: { color: '#0f172a', fontWeight: '800', marginBottom: 6, marginTop: 10 },
+  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, padding: 14, fontSize: 16 },
+  textArea: { minHeight: 110, textAlignVertical: 'top' },
+  button: { backgroundColor: '#1e40af', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 24 },
+  disabled: { opacity: 0.75 },
+  buttonText: { color: '#fff', fontWeight: '900', fontSize: 16 },
+});
